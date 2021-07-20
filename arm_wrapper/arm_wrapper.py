@@ -35,6 +35,54 @@ class BaseArmWrapper():
     def close(self):
         pass
 
+class DexArmWrapper(BaseArmWrapper):
+    """ Base Class for Arm
+    """
+
+    def __init__(self,
+                 logging=False):
+        """
+        Args:
+            logging (bool): log or not.
+        """
+        self.init_offset = [0, 300 ,0]
+        from .pydexarm import Dexarm
+        self._arm = Dexarm("/dev/ttyACM0") # COM* in Windows, /dev/tty* in Ubuntu
+        self._logging = logging
+        self.setup()
+
+    def setup(self):
+        self._arm.go_home()
+
+    def go_home(self):
+        self._arm.go_home()
+
+    def set_pos(self, x=None, y=None, z=None, wait=False):
+        if x is not None: x = - x
+        if y is not None: y = y + 300
+        self._arm.move_to(x,y,z, wait=False, feedrate=2000)
+
+    def get_pos(self):
+        pos = list(self._arm.get_current_position())
+        if pos[0] is not None:
+            pos[0] = - pos[0]
+            pos[1] = pos[1] - 300
+        return pos[:3]
+
+    def set_gripper(self, open_pos):
+        if 0.3 < open_pos <= 0.5:
+            self._arm.soft_gripper_pick()
+        elif 0.7 <= open_pos < 0.9:
+            self._arm.soft_gripper_place()
+        else:
+            self._arm.soft_gripper_nature()
+
+    def reset(self, wait=True):
+        self._arm.go_home()
+
+    def close(self):
+        self._arm.close()
+
 
 class xARMWrapper(BaseArmWrapper):
     """ Class for xArm
