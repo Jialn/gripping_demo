@@ -1,0 +1,10 @@
+__pycache__
+.vscode/*
+.DS_Store
+temp
+*.png
+*.bmp
+*.ply
+*.pcd
+*.exr
+*~
